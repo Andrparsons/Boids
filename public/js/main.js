@@ -1,39 +1,32 @@
 import {Vector} from './vector.js';
 
-//init screen
-const canvas = document.getElementById('screen');
-const context = canvas.getContext('2d');
-
-//listen for resize events and draw the canvas
-function initialize() {
-  window.addEventListener('resize', resizeCanvas, false);
-  resizeCanvas();
-
-  //test vectors
-  var test = new Vector(100,100);
-  console.log(test);
-  console.log(test.div(2));
-  console.log(test.mul(2));
-  console.log(test.mag());
-  console.log(test.unit());
-  console.log(test.add(new Vector(2,1)));
-  console.log(test.sub(new Vector(2,1)));
-  console.log(test.dot(new Vector(200,200)));
+function Simulation() {
+  //init screen
+  this.canvas = document.getElementById('screen');
+  this.context = this.canvas.getContext('2d');
 }
 
-function redraw() {
-  context.strokeStyle = 'blue';
-  context.lineWidth = '5';
-  context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+Simulation.prototype = {
+  initialize: function() {
+    //add listener to make sure the canvas uses the whole available area on screen
+    window.addEventListener('resize', this.resizeCanvas.bind(this), false);
+    this.resizeCanvas();
+  },
+  resizeCanvas: function() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    this.render();
+  },
+  render: function() {
+    this.context.strokeStyle = 'blue';
+    this.context.lineWidth = '5';
+    this.context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+  }
 }
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  redraw();
-}
+const sim = new Simulation();
 
-window.onload = initialize;
+sim.initialize();
 
 //steps for program
 //initialize boids
