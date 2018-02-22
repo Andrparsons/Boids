@@ -10,12 +10,15 @@ function initialize() {
   resizeCanvas();
 
   //test vectors
-  var test = new Vector(-2,1);
+  var test = new Vector(100,100);
   console.log(test);
   console.log(test.div(2));
   console.log(test.mul(2));
   console.log(test.mag());
   console.log(test.unit());
+  console.log(test.add(new Vector(2,1)));
+  console.log(test.sub(new Vector(2,1)));
+  console.log(test.dot(new Vector(200,200)));
 }
 
 function redraw() {
