@@ -36,9 +36,10 @@ function resizeCanvas() {
 window.onload = initialize;
 
 //steps for program
-// => need to be able to do vector math, not built into js, make a module (or find one)
-
-//initialize positions
+//initialize boids
+function Boid(canvas, x, y) {
+  this.position = new Vector(x,y);
+}
 
 //draw boids on screen
 

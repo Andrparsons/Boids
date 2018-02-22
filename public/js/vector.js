@@ -21,5 +21,13 @@ Vector.prototype = {
   add: function(vec) { return new Vector(this.x + vec.x, this.y + vec.y)},
   sub: function(vec) { return new Vector(this.x - vec.y, this.y - vec.y)},
   // dot product
-  dot: function(vec) { return (this.x * vec.x + this.y * vec.y)}
+  dot: function(vec) { return (this.x * vec.x + this.y * vec.y)},
+  //max magnitude allowed
+  limit: function(max) {
+    if (this.mag() > max) {
+      let unit = this.unit();
+      return new Vector(unit.x * max, unit.y * max);
+    }
+    return this;
+  }
 }
