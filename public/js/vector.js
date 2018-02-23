@@ -10,7 +10,7 @@ Vector.prototype = {
   //magnitude
   mag: function() { return Math.sqrt(this.x * this.x + this.y * this.y) },
   //unit vector
-  unit: function() { 
+  unit: function() {
     let mag = this.mag()
     return new Vector(this.x / mag, this.y / mag)
    },

@@ -11,6 +11,11 @@ Simulation.prototype = {
     //add listener to make sure the canvas uses the whole available area on screen
     window.addEventListener('resize', this.resizeCanvas.bind(this), false);
     this.resizeCanvas();
+
+    //draw boids on screen
+    //one to start, right in the middle => pass the simulation reference to the boid fuction so it can asscess the canvas to draw
+    const boid = new Boid(this, this.canvas.width /2, this.canvas.height /2);
+    boid.render();
   },
   resizeCanvas: function() {
     this.canvas.width = window.innerWidth;
@@ -24,17 +29,38 @@ Simulation.prototype = {
   }
 }
 
-const sim = new Simulation();
-
-sim.initialize();
-
 //steps for program
 //initialize boids
-function Boid(canvas, x, y) {
+function Boid(simulation, x, y) {
   this.position = new Vector(x,y);
+  //generate a random angle/direction for the boid to travel
+  const angle = 2 * Math.PI * Math.random();
+  this.velocity = new Vector(Math.cos(angle), Math.sin(angle));
+  this.simulation = simulation;
 }
 
-//draw boids on screen
+Boid.prototype = {
+  //draw boids on screen
+  render: function() {
+    let directionVector = this.velocity.unit().mul(20);
+    let inverse1 = new Vector(-directionVector.y, directionVector.x);
+    let inverse2 = new Vector(directionVector.y, -directionVector.x);
+    inverse1 = inverse1.div(3);
+    inverse2 = inverse2.div(3);
+
+    this.simulation.context.beginPath();
+    this.simulation.context.moveTo(this.position.x, this.position.y);
+    this.simulation.context.lineTo(this.position.x + inverse1.x, this.position.y + inverse1.y);
+    this.simulation.context.lineTo(this.position.x + directionVector.x, this.position.y + directionVector.y);
+    this.simulation.context.lineTo(this.position.x + inverse2.x, this.position.y + inverse2.y);
+    this.simulation.context.lineTo(this.position.x, this.position.y);
+    this.simulation.context.fillStyle = 'red';
+    this.simulation.context.fill();
+  }
+}
+
+const sim = new Simulation();
+sim.initialize();
 
 //move all boids to new position
 //pseudocode
