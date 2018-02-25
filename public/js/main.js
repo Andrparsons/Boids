@@ -1,5 +1,6 @@
 import {Vector} from './vector.js';
 
+//simulation 
 function Simulation() {
   //init screen
   this.canvas = document.getElementById('screen');
@@ -12,10 +13,13 @@ Simulation.prototype = {
     window.addEventListener('resize', this.resizeCanvas.bind(this), false);
     this.resizeCanvas();
 
-    //draw boids on screen
-    //one to start, right in the middle => pass the simulation reference to the boid fuction so it can asscess the canvas to draw
-    const boid = new Boid(this, this.canvas.width /2, this.canvas.height /2);
-    boid.render();
+    //initialize array to hold the boids
+    this.boids = [];
+    for (let i = 0; i < 100; i++) {
+      let boid = new Boid(this, Math.random() * this.canvas.width, Math.random() * this.canvas.height);
+      this.boids.push(boid);
+    }
+    this.render();
   },
   resizeCanvas: function() {
     this.canvas.width = window.innerWidth;
@@ -26,6 +30,18 @@ Simulation.prototype = {
     this.context.strokeStyle = 'blue';
     this.context.lineWidth = '5';
     this.context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+
+    //draw all the boids in the array
+    for (let x in this.boids) {
+      this.boids[x].render();
+    }
+  },
+  run: function() {
+    //set the timing for each frame (aka fps)
+    setInterval(function() {
+      //run movement code
+      //draw boids
+    }, 30);
   }
 }
 
