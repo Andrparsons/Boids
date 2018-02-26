@@ -19,7 +19,11 @@ Simulation.prototype = {
       let boid = new Boid(this, Math.random() * this.canvas.width, Math.random() * this.canvas.height);
       this.boids.push(boid);
     }
-    this.render();
+  },
+  move: function() {
+    for(let x in this.boids) {
+      this.boids[x].flock();
+    }
   },
   resizeCanvas: function() {
     this.canvas.width = window.innerWidth;
@@ -27,20 +31,21 @@ Simulation.prototype = {
     this.render();
   },
   render: function() {
-    this.context.strokeStyle = 'blue';
-    this.context.lineWidth = '5';
-    this.context.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     //draw all the boids in the array
     for (let x in this.boids) {
-      this.boids[x].render();
+      this.boids[x].run();
     }
   },
   run: function() {
+    const intRef = this;
     //set the timing for each frame (aka fps)
     setInterval(function() {
       //run movement code
+      intRef.move();
       //draw boids
+      intRef.render();
     }, 30);
   }
 }
@@ -52,6 +57,7 @@ function Boid(simulation, x, y) {
   //generate a random angle/direction for the boid to travel
   const angle = 2 * Math.PI * Math.random();
   this.velocity = new Vector(Math.cos(angle), Math.sin(angle));
+  this.acceleration = new Vector(0,0);
   this.simulation = simulation;
 }
 
@@ -72,11 +78,30 @@ Boid.prototype = {
     this.simulation.context.lineTo(this.position.x, this.position.y);
     this.simulation.context.fillStyle = 'red';
     this.simulation.context.fill();
+  },
+  //flock interactions
+  flock: function() {
+    //this.acceleration  = this.acceleration + rules
+    let testVector = new Vector(100,100);
+    this.acceleration.add(testVector);
+  },
+  
+  run: function() {
+    this.flock(); //flock calculations
+    this.update(); //position boids
+    this.render(); //draw
+  },
+
+  update: function() {
+    this.velocity = this.velocity.add(this.acceleration);
+    this.position = this.position.add(this.velocity);
+    this.acceleration = this.acceleration.mul(0);
   }
 }
 
 const sim = new Simulation();
 sim.initialize();
+sim.run();
 
 //move all boids to new position
 //pseudocode
