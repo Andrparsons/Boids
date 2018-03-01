@@ -29,5 +29,9 @@ Vector.prototype = {
       return new Vector(unit.x * max, unit.y * max);
     }
     return this;
+  },
+  //euclidean distance (aka Pythagorean metric) - to figure out how far apart boids are
+  distance: function(vec) {
+    return Math.sqrt((this.x - vec.x) * (this.x - vec.x) + (this.y - vec.y) * (this.y - vec.y));
   }
 }

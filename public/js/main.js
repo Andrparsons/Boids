@@ -69,6 +69,8 @@ Boid.prototype = {
   //rules
   //Rule 1: Boids try to fly towards the centre of the mass of Boids
   group: function() {
+    
+
 
   },
   //Rule 2: Boids try to keep a small distance away from other objects
