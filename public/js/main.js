@@ -16,7 +16,8 @@ Simulation.prototype = {
     //initialize array to hold the boids
     this.boids = [];
     for (let i = 0; i < 100; i++) {
-      let boid = new Boid(this, Math.random() * this.canvas.width, Math.random() * this.canvas.height);
+      //initial position of boids
+      let boid = new Boid(this, this.canvas.width * Math.random(), this.canvas.height * Math.random());
       this.boids.push(boid);
     }
   },
@@ -31,6 +32,7 @@ Simulation.prototype = {
     this.render();
   },
   render: function() {
+    //clear screen between frames or it looks like a pen stroke rather than movement
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     //draw all the boids in the array
@@ -58,10 +60,40 @@ function Boid(simulation, x, y) {
   const angle = 2 * Math.PI * Math.random();
   this.velocity = new Vector(Math.cos(angle), Math.sin(angle));
   this.acceleration = new Vector(0,0);
+  //boids only react to things they can 'see' not sure what the ideal distance is - test out later
+  this.sightDistance = 100;
   this.simulation = simulation;
 }
 
 Boid.prototype = {
+  //rules
+  //Rule 1: Boids try to fly towards the centre of the mass of Boids
+  group: function() {
+
+  },
+  //Rule 2: Boids try to keep a small distance away from other objects
+  separation: function() {
+
+  },
+  //Rule 3: Boids try to match the velocity of nearby boids
+  alignment: function() {
+
+  },
+  //keep boids within border
+  border: function() {
+    if (this.position.x > window.innerWidth) {
+      this.position.x = 0;
+    }
+    if (this.position.x < 0) {
+      this.position.x = window.innerWidth;
+    }
+    if (this.position.y > window.innerHeight) {
+      this.position.y = 0;
+    }
+    if (this.position.y < 0) {
+      this.position.y = window.innerHeight;
+    }
+  },
   //draw boids on screen
   render: function() {
     let directionVector = this.velocity.unit().mul(20);
@@ -83,18 +115,34 @@ Boid.prototype = {
   flock: function() {
     //this.acceleration  = this.acceleration + rules
     let testVector = new Vector(100,100);
-    this.acceleration.add(testVector);
+    //this.acceleration = this.acceleration.add(testVector);
   },
   
   run: function() {
-    this.flock(); //flock calculations
+    //this.flock(); //flock calculations
     this.update(); //position boids
     this.render(); //draw
   },
 
   update: function() {
+    //move all boids to new position
+    //pseudocode
+    /*
+      vector v1, v2, v3
+      boid b
+
+      for each boid b
+        v1 = rule1(b)
+        v2 = rule2(b)
+        v3 = rule3(b)
+
+        b.velocity = b.velocity + v1 + v2 + v3
+        b.position = b.position + b.velocity
+    */
+
     this.velocity = this.velocity.add(this.acceleration);
     this.position = this.position.add(this.velocity);
+    this.border();
     this.acceleration = this.acceleration.mul(0);
   }
 }
@@ -102,32 +150,6 @@ Boid.prototype = {
 const sim = new Simulation();
 sim.initialize();
 sim.run();
-
-//move all boids to new position
-//pseudocode
-/*
-  vector v1, v2, v3
-  boid b
-
-  for each boid b
-    v1 = rule1(b)
-    v2 = rule2(b)
-    v3 = rule3(b)
-
-    b.velocity = b.velocity + v1 + v2 + v3
-    b.position = b.position + b.velocity
-*/
-
-//rules
-
-//Rule 1: Boids try to fly towards the centre of the mass of Boids
-/*
-  centre of mass is the average position of all the boids
-*/
-
-//Rule 2: Boids try to keep a small distance away from other objects
-
-//Rule 3: Boids try to match the velocity of nearby boids
 
 //Possible tweaks
 
