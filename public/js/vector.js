@@ -14,6 +14,9 @@ Vector.prototype = {
     let mag = this.mag()
     return new Vector(this.x / mag, this.y / mag)
    },
+   setMag: function(limit) {
+     return this.unit().mul(limit);
+   },
   //scalars
   div: function(k) { return new Vector(this.x / k, this.y / k) },
   mul: function(k) { return new Vector(this.x * k, this.y * k) },
@@ -30,7 +33,7 @@ Vector.prototype = {
     }
     return this;
   },
-  //euclidean distance (aka Pythagorean metric) - to figure out how far apart boids are
+  //euclidean distance (aka Pythagorean metric) - to figure out how far apart boids are)
   distance: function(vec) {
     return Math.sqrt((this.x - vec.x) * (this.x - vec.x) + (this.y - vec.y) * (this.y - vec.y));
   }

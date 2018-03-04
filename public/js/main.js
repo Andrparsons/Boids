@@ -23,7 +23,8 @@ Simulation.prototype = {
   },
   move: function() {
     for(let x in this.boids) {
-      this.boids[x].flock();
+      //pass in info from whole array of boids to calculate flock behaviors
+      this.boids[x].flock(this.boids);
     }
   },
   resizeCanvas: function() {
@@ -37,7 +38,7 @@ Simulation.prototype = {
 
     //draw all the boids in the array
     for (let x in this.boids) {
-      this.boids[x].run();
+      this.boids[x].run(this.boids);
     }
   },
   run: function() {
@@ -48,7 +49,7 @@ Simulation.prototype = {
       intRef.move();
       //draw boids
       intRef.render();
-    }, 30);
+    }, 15);
   }
 }
 
@@ -60,26 +61,105 @@ function Boid(simulation, x, y) {
   const angle = 2 * Math.PI * Math.random();
   this.velocity = new Vector(Math.cos(angle), Math.sin(angle));
   this.acceleration = new Vector(0,0);
+
   //boids only react to things they can 'see' not sure what the ideal distance is - test out later
-  this.sightDistance = 100;
+  this.sightDistance = 150;
+  //how far boids want to be apart
+  this.separationDistance = 40;
+  this.maxVel = 3;
+  this.max_turn = .001;
   this.simulation = simulation;
 }
 
 Boid.prototype = {
   //rules
   //Rule 1: Boids try to fly towards the centre of the mass of Boids
-  group: function() {
+  //take the whole boids array as the centre of mass only makes sense when applied to the flock
+  group: function(boids) {
+    let groupPosition = new Vector(0,0);
+    let neighbourCount = 0;
     
+    //find the boids that this boid can 'see' and add up the group position
+    for(let x in boids) {
+      let distance = this.position.distance(boids[x].position);
+      if(distance <= this.sightDistance) {
+        groupPosition = groupPosition.add(boids[x].position);
+        neighbourCount ++;
+      }
+    }
 
+    //find the centre of mass of the local boids
+    if(neighbourCount > 0) {
+      let centreMass = groupPosition.div(neighbourCount);
+      //boid wants to be at centremass
+      let desire = centreMass.sub(this.position);
+      //scale it so it doesn't teleport
+      desire = desire.setMag(this.maxVel);
+      desire = desire.sub(this.velocity);
+      //limit turning speed
+      desire = desire.limit(this.max_turn);
+
+      //subtract its current velocity to allow it to turn
+      return desire;
+    } else {
+      //if it is by it self just keep on going
+      return new Vector(0,0);
+    }
 
   },
   //Rule 2: Boids try to keep a small distance away from other objects
-  separation: function() {
+  separation: function(boids) {
+    let neighbourCount = 0;
+    let directionVector = new Vector(0, 0);
+
+    //check to see if the boids are 'too close'
+    for (let x in boids) {
+      let distance = this.position.distance(boids[x].position);
+      if (distance > 0 && distance < this.separationDistance) {
+        let deltaV = this.position.sub(boids[x].position);
+        deltaV = deltaV.unit();
+        deltaV = deltaV.div(distance);
+        directionVector = directionVector.add(deltaV);
+        neighbourCount++;
+      }
+    }
+
+    if (neighbourCount > 0) {
+      let average = directionVector.div(neighbourCount);
+
+      if (average.mag() > 0 ) {
+        average = average.setMag(this.maxVel);
+        average = average.sub(this.velocity);
+        average = average.limit(this.max_turn);
+      }
+      return average;
+    } else {
+      return new Vector(0,0);
+    }
 
   },
   //Rule 3: Boids try to match the velocity of nearby boids
-  alignment: function() {
+  alignment: function(boids) {
+    let flockVel = new Vector(0,0);
+    let neighbourCount = 0;
 
+    for (let x in boids) {
+      let distance = this.position.distance(boids[x].position);
+      if(distance > 0 && distance < this.sightDistance) {
+        flockVel = flockVel.add(boids[x].velocity);
+        neighbourCount++;
+      }
+    }
+
+    if (neighbourCount > 0) {
+      let average = flockVel.div(neighbourCount);
+      average = average.setMag(this.maxVel);
+      average = average.sub(this.velocity);
+      average = average.limit(this.max_turn);
+      return average;
+    } else {
+      return new Vector(0,0);
+    }
   },
   //keep boids within border
   border: function() {
@@ -114,35 +194,27 @@ Boid.prototype = {
     this.simulation.context.fill();
   },
   //flock interactions
-  flock: function() {
+  flock: function(boids) {
     //this.acceleration  = this.acceleration + rules
-    let testVector = new Vector(100,100);
-    //this.acceleration = this.acceleration.add(testVector);
+    let rule1 = this.group(boids);
+    let rule2 = this.separation(boids);
+    rule2 = rule2.mul(2);
+    let rule3 = this.alignment(boids);
+
+    this.acceleration = this.acceleration.add(rule1);
+    this.acceleration = this.acceleration.add(rule2);
+    this.acceleration = this.acceleration.add(rule3);
   },
   
-  run: function() {
-    //this.flock(); //flock calculations
+  run: function(boids) {
+    this.flock(boids); //flock calculations
     this.update(); //position boids
     this.render(); //draw
   },
 
   update: function() {
-    //move all boids to new position
-    //pseudocode
-    /*
-      vector v1, v2, v3
-      boid b
-
-      for each boid b
-        v1 = rule1(b)
-        v2 = rule2(b)
-        v3 = rule3(b)
-
-        b.velocity = b.velocity + v1 + v2 + v3
-        b.position = b.position + b.velocity
-    */
-
     this.velocity = this.velocity.add(this.acceleration);
+    this.velocity = this.velocity.limit(this.maxVel);
     this.position = this.position.add(this.velocity);
     this.border();
     this.acceleration = this.acceleration.mul(0);
