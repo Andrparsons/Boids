@@ -9,7 +9,7 @@ export function Boid(simulation, x, y) {
   this.acceleration = new Vector(0,0);
 
   //boids only react to things they can 'see' not sure what the ideal distance is - test out later
-  this.sightDistance = 150;
+  this.sightDistance = 10;
   //how far boids want to be apart
   this.separationDistance = 40;
   this.maxVel = 3;
@@ -124,7 +124,7 @@ Boid.prototype = {
   },
   //draw boids on screen
   render: function() {
-    let directionVector = this.velocity.unit().mul(20);
+    let directionVector = this.velocity.unit().mul(10);
     let inverse1 = new Vector(-directionVector.y, directionVector.x);
     let inverse2 = new Vector(directionVector.y, -directionVector.x);
     inverse1 = inverse1.div(3);
@@ -144,7 +144,7 @@ Boid.prototype = {
     //this.acceleration  = this.acceleration + rules
     let rule1 = this.group(boids);
     let rule2 = this.separation(boids);
-    rule2 = rule2.mul(2);
+    //rule2 = rule2.mul(2);
     let rule3 = this.alignment(boids);
 
     this.acceleration = this.acceleration.add(rule1);

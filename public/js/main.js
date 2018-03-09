@@ -15,9 +15,9 @@ Simulation.prototype = {
 
     //initialize array to hold the boids
     this.boids = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 100; i++) {
       //initial position of boids
-      let boid = new Boid(this, this.canvas.width * Math.random(), this.canvas.height * Math.random());
+      let boid = new Boid(this, this.canvas.width/2, this.canvas.height/2);
       this.boids.push(boid);
     }
   },
